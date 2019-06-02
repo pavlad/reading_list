@@ -5,9 +5,9 @@ const schema = require('./schema/schema')
 const mongoose = require('mongoose')
 const config = require('./config/local')
 
-mongoose.connect(config.database.connection_string)
+mongoose.connect(config.database.connection_string, { useNewUrlParser: true })
 mongoose.connection.once('open', () => {
-  console.log('connected to databse')
+  console.log('Connected to database')
 })
 
 app.use('/graphql', graphqlHTTP({
