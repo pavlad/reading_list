@@ -4,6 +4,10 @@ const app = express()
 const schema = require('./schema/schema')
 const mongoose = require('mongoose')
 const config = require('./config/local')
+const cors = require('cors')
+
+// allow cross-origin requests
+app.use(cors())
 
 mongoose.connect(config.database.connection_string, { useNewUrlParser: true })
 mongoose.connection.once('open', () => {
