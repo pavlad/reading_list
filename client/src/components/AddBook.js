@@ -1,18 +1,19 @@
 import React, { Component } from 'react'
-import { gql } from 'apollo-boost'
-import { graphql } from 'react-apollo'
+import { graphql, compose } from 'react-apollo'
+import { GET_AUTHORS, ADD_BOOK, GET_BOOKS } from '../queries/queries'
 
-const GET_AUTHORS = gql`
-  {
-    authors {
-      name
-      id
+class AddBook extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      name: '',
+      genre: '',
+      authorId: ''
     }
   }
-`
-class AddBook extends Component {
+
   displayAuthors() {
-    var data = this.props.data
+    var data = this.props.GET_AUTHORS
 
     if(data.loading) {
       return <option>Loading authors</option>
@@ -22,22 +23,37 @@ class AddBook extends Component {
       })
     }
   }
+
+  submitForm(e) {
+    e.preventDefault()
+    let { name, genre, authorId } = this.state
+
+    this.props.ADD_BOOK({
+      variables: {
+        name,
+        genre,
+        authorId
+      },
+      refetchQueries: [{ query: GET_BOOKS }]
+    })
+  }
+
   render() {
     return (
-      <form id="add-book">
+      <form id="add-book" onSubmit={ this.submitForm.bind(this) }>
         <div className="field">
           <label>Book name:</label>
-          <input type="text"/>
+          <input type="text" onChange={(e) => this.setState({ name: e.target.value })}/>
         </div>
 
         <div className="field">
           <label>Genre:</label>
-          <input type="text"/>
+          <input type="text" onChange={(e) => this.setState({ genre: e.target.value })}/>
         </div>
 
         <div className="field">
           <label>Author:</label>
-          <select>
+          <select onChange={(e) => this.setState({ authorId: e.target.value })}>
             {this.displayAuthors()}
           </select>
         </div>
@@ -48,4 +64,7 @@ class AddBook extends Component {
   }
 }
 
-export default graphql(GET_AUTHORS)(AddBook)
+export default compose(
+  graphql(GET_AUTHORS, { name: 'GET_AUTHORS' }),
+  graphql(ADD_BOOK, { name: 'ADD_BOOK' })
+)(AddBook)
